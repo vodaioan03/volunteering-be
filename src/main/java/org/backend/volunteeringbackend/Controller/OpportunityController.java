@@ -23,6 +23,13 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/opportunities")
+@CrossOrigin(
+    originPatterns = "*",
+    allowedHeaders = {"Authorization", "Content-Type", "Accept"},
+    methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, 
+               RequestMethod.DELETE, RequestMethod.OPTIONS, RequestMethod.HEAD},
+    maxAge = 3600
+)
 public class OpportunityController {
     private final OpportunityService opportunityService;
     private final OpportunityWebSocketController webSocketController;
@@ -114,12 +121,10 @@ public class OpportunityController {
     public ResponseEntity<Opportunity> createOpportunity(@RequestBody OpportunityCreateDTO createDTO) {
         try {
             Opportunity created = null;
-            System.err.println(createDTO.getEndDate());
             created = opportunityService.createOpportunity(createDTO);
 
             // Broadcast update after creation
             webSocketController.broadcastOpportunitiesUpdate();
-            System.err.println("In try ce plm");
             URI location = ServletUriComponentsBuilder
                     .fromCurrentRequest()
                     .path("/{id}")
@@ -128,7 +133,6 @@ public class OpportunityController {
             return ResponseEntity.created(location).body(created);
         } catch (BadRequestException e) {
             ResponseEntity.badRequest().body(e.getMessage());
-            System.err.println("in catch " + e.getMessage());
             return ResponseEntity.ok().body(null);
         }
 
@@ -178,14 +182,12 @@ public class OpportunityController {
 
     @GetMapping("/health")
     public ResponseEntity<String> healthCheck() {
-        // Add any additional health checks here if needed
-        // For example: database connection check, external service status, etc.
-        return new ResponseEntity<>("Service is healthy", HttpStatus.OK);
+        return ResponseEntity.ok()
+                .body("Service is healthy");
     }
 
-    // Alternative HEAD method version
     @RequestMapping(value = "/health", method = RequestMethod.HEAD)
     public ResponseEntity<Void> healthCheckHead() {
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 }

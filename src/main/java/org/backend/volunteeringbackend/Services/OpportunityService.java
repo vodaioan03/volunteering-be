@@ -8,8 +8,6 @@ import org.backend.volunteeringbackend.DTO.OpportunityCreateDTO;
 import org.backend.volunteeringbackend.DTO.OpportunityUpdateDTO;
 import org.backend.volunteeringbackend.Repository.IOpportunityRepository;
 import org.backend.volunteeringbackend.Models.Opportunity;
-import org.backend.volunteeringbackend.Repository.OpportunityRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,13 +17,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
-@Transactional
-@Service
-public class OpportunityService {
-    @Autowired
-    IOpportunityRepository opportunityRepository;
 
-    public OpportunityService(OpportunityRepository opportunityRepository) {
+@Service
+@Transactional
+public class OpportunityService {
+    private final IOpportunityRepository opportunityRepository;
+
+    public OpportunityService(IOpportunityRepository opportunityRepository) {
+        this.opportunityRepository = opportunityRepository;
     }
 
     public List<Opportunity> getAllOpportunities() {
@@ -41,7 +40,6 @@ public class OpportunityService {
         return opportunityRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Opportunity not found with id: " + id));
     }
-
 
     public Page<Opportunity> getPaginatedOpportunities(Pageable pageable) {
         return opportunityRepository.findAll(pageable);
@@ -63,21 +61,13 @@ public class OpportunityService {
 
     public void addSampleData() {
         try {
-            // Create ObjectMapper instance
             ObjectMapper mapper = new ObjectMapper();
-
             InputStream inputStream = new FileInputStream(new File("src/main/java/org/backend/volunteeringbackend/opportunities.json"));
 
             if (inputStream != null) {
-                // Parse JSON into array of Opportunity objects
                 Opportunity[] opportunitiesArray = mapper.readValue(inputStream, Opportunity[].class);
-
-                // Convert array to List
                 List<Opportunity> sampleOpportunities = Arrays.asList(opportunitiesArray);
-
-                // Save all sample opportunities
                 opportunityRepository.saveAll(sampleOpportunities);
-
                 System.out.println("Successfully loaded " + sampleOpportunities.size() + " opportunities from JSON");
             } else {
                 System.err.println("Could not find opportunities.json in resources");
@@ -85,21 +75,19 @@ public class OpportunityService {
         } catch (IOException e) {
             e.printStackTrace();
             System.err.println("Error loading opportunities from JSON");
-
         }
     }
 
-
     public Opportunity createOpportunity(OpportunityCreateDTO createDTO) throws BadRequestException {
-        if(
-            createDTO.getShortDescription().isEmpty() ||
-            createDTO.getOrganizer().isEmpty() ||
-            createDTO.getEndDate().isEmpty() ||
-            createDTO.getImage().isEmpty() ||
-            createDTO.getTitle().isEmpty() ||
-            createDTO.getEndDate().matches("^\\d{4}-\\d{2}-\\d{2}$\n")) {
+        if(createDTO.getShortDescription().isEmpty() ||
+           createDTO.getOrganizer().isEmpty() ||
+           createDTO.getEndDate().isEmpty() ||
+           createDTO.getImage().isEmpty() ||
+           createDTO.getTitle().isEmpty() ||
+           !createDTO.getEndDate().matches("^\\d{4}-\\d{2}-\\d{2}$")) {
             throw new BadRequestException("All fields are missing");
         }
+        
         Opportunity opportunity = new Opportunity();
         opportunity.setTitle(createDTO.getTitle());
         opportunity.setOrganizer(createDTO.getOrganizer());
@@ -111,20 +99,15 @@ public class OpportunityService {
         return opportunityRepository.save(opportunity);
     }
 
-    public Opportunity updateOpportunity(
-            UUID id,
-            OpportunityUpdateDTO updateDTO) {
-
+    public Opportunity updateOpportunity(UUID id, OpportunityUpdateDTO updateDTO) {
         Opportunity existing = getById(id);
 
-        // Update all fields including title
         if (updateDTO.getTitle() != null) {
             existing.setTitle(updateDTO.getTitle());
         }
         if (updateDTO.getOrganizer() != null) {
             existing.setOrganizer(updateDTO.getOrganizer());
         }
-
         if (updateDTO.getDescription() != null) {
             existing.setDescription(updateDTO.getDescription());
         }

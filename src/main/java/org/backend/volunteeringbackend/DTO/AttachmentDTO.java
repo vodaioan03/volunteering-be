@@ -19,4 +19,45 @@ public class AttachmentDTO {
     }
 
     // Constructors, getters, and setters
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
+    public long getSize() {
+        return size;
+    }
+
+    public void setSize(long size) {
+        this.size = size;
+    }
+
+    public String getOpportunityId() {
+        return opportunityId;
+    }
+
+    public void setOpportunityId(String opportunityId) {
+        this.opportunityId = opportunityId;
+    }
+
 }

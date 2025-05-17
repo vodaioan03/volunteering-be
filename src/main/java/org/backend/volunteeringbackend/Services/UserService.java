@@ -1,8 +1,7 @@
 package org.backend.volunteeringbackend.Services;
 
-
 import jakarta.transaction.Transactional;
-import org.backend.volunteeringbackend.Repository.IUserRepository;
+import org.backend.volunteeringbackend.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +10,9 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     @Autowired
-    private IUserRepository userRepository;
+    private final UserRepository userRepository;
 
-    public UserService() {}
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 }

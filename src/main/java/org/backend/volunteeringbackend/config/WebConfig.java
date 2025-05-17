@@ -13,6 +13,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOrigins("http://localhost:3000") // Allow all origins
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD")
                 .allowedHeaders("*") // Allow all headers
+                .allowCredentials(true)
                 .exposedHeaders("Authorization", "Content-Disposition")
                 .maxAge(3600); // Cache preflight response for 1 hour
 
